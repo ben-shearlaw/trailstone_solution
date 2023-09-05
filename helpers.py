@@ -31,7 +31,7 @@ def get_latest_dates() -> List[str]:
     dates = []
     current_date = datetime.now()
     yesterday = current_date - timedelta(days=1)
-    start_date = yesterday - timedelta(days=7)  # exclusive of current date.
+    start_date = yesterday - timedelta(days=6)  # exclusive of current date.
     while start_date <= yesterday:
         dates.append(start_date.strftime('%Y-%m-%d'))
         start_date += timedelta(days=1)
