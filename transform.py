@@ -33,8 +33,7 @@ def transform(task):
                 task.schema.validate(chunk)
                 strip_leading_and_trailing_whitespace_from_column_names(chunk)
                 rename_cols(chunk)
-                cast_to_numeric_types(chunk)
-                normalise_timestamps(chunk, task)
+                normalise_timestamps(chunk, unit=get_unit(task))
                 write_header = True if index == 0 else False
                 append_chunk_to_csv(chunk, write_header, task.output_filepath)
                 success = True
@@ -45,6 +44,11 @@ def transform(task):
                 logging.error({"message": "Uncaught Error", "file": task.temp_file})
                 return (task.output_filepath, None, success)
     return task.output_filepath, duration(), success
+
+
+def get_unit(task):
+    """'ms' for epoch (found in json) otherwise None for csv timestamps."""
+    return 'ms' if task.input_data_format == 'json' else None
 
 
 @dask.delayed
@@ -64,13 +68,7 @@ def get_chunked_df(task: Task) -> pd.DataFrame:
         return pd.read_csv(task.temp_file, chunksize=DF_CHUNK_SIZE)
 
 
-def cast_to_numeric_types(chunk: pd.DataFrame):
-    chunk['variable'] = chunk['variable'].astype(int)
-    chunk['value'] = chunk['value'].astype(float)
-
-
-def normalise_timestamps(chunk: pd.DataFrame, task: Task):
-    unit = 'ms' if task.input_data_format == 'json' else None
+def normalise_timestamps(chunk: pd.DataFrame, unit):
     chunk['time_stamp'] = pd.to_datetime(chunk['time_stamp'], utc=True, unit=unit)
     chunk['last_modified'] = pd.to_datetime(chunk['last_modified'], utc=True, unit=unit)
 
