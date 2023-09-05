@@ -4,6 +4,7 @@ from typing import List
 
 import dask
 import pandas as pd
+from pandera.errors import SchemaError
 
 from helpers import catchtime, Task, append_chunk_to_csv
 from settings import DF_CHUNK_SIZE
@@ -25,15 +26,25 @@ def transform_input_files(tasks: List[Task]) -> None:
 
 
 def transform(task):
+    success = False
     with catchtime() as duration:
         for index, chunk in enumerate(get_chunked_df(task)):
-            strip_leading_and_trailing_whitespace_from_column_names(chunk)
-            rename_cols(chunk)
-            cast_to_numeric_types(chunk)
-            normalise_timestamps(chunk, task)
-            write_header = True if index == 0 else False
-            append_chunk_to_csv(chunk, write_header, task.output_filepath)
-    return task.output_filepath, duration()
+            try:
+                task.schema.validate(chunk)
+                strip_leading_and_trailing_whitespace_from_column_names(chunk)
+                rename_cols(chunk)
+                cast_to_numeric_types(chunk)
+                normalise_timestamps(chunk, task)
+                write_header = True if index == 0 else False
+                append_chunk_to_csv(chunk, write_header, task.output_filepath)
+                success = True
+            except SchemaError as e:
+                logging.error({"message": "Schema Error", "file": task.temp_file})
+                return (task.output_filepath, None, success)
+            except Exception as e:
+                logging.error({"message": "Uncaught Error", "file": task.temp_file})
+                return (task.output_filepath, None, success)
+    return task.output_filepath, duration(), success
 
 
 @dask.delayed
