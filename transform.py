@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import List
 
 import dask
@@ -15,7 +16,7 @@ def transform_input_files(tasks: List[Task]) -> None:
     :param tasks: A list of Task objects representing the input files to be transformed.
     """
     with catchtime() as duration:
-        results = dask.compute(*[transform(task) for task in tasks])
+        results = dask.compute(*[attempt_transformation(task) for task in tasks])
     logging.info({
         "message": f"Successfully outputted processed file(s)",
         "duration": duration(),
@@ -23,8 +24,7 @@ def transform_input_files(tasks: List[Task]) -> None:
     })
 
 
-@dask.delayed
-def transform(task: Task) -> (str, str):
+def transform(task):
     with catchtime() as duration:
         for index, chunk in enumerate(get_chunked_df(task)):
             strip_leading_and_trailing_whitespace_from_column_names(chunk)
@@ -34,6 +34,16 @@ def transform(task: Task) -> (str, str):
             write_header = True if index == 0 else False
             append_chunk_to_csv(chunk, write_header, task.output_filepath)
     return task.output_filepath, duration()
+
+
+@dask.delayed
+def attempt_transformation(task: Task) -> (str, str):
+    result = ("Failed", None)  # status, duration
+    if os.path.exists(task.temp_file):
+        result = transform(task)
+    else:
+        logging.info({"message": "Input file not found", "file": task.temp_file})
+    return result
 
 
 def get_chunked_df(task: Task) -> pd.DataFrame:

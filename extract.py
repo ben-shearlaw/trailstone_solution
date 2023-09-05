@@ -4,7 +4,7 @@ import os
 from typing import List
 
 import aiofiles.os
-from httpx import AsyncClient
+from httpx import AsyncClient, HTTPStatusError
 import ijson
 import simplejson as json
 import tenacity
@@ -28,7 +28,7 @@ async def convert_json_files_to_jsonl(tasks: List[Task]):
         for task in tasks:
             if task.input_data_format == "json":
                 conversion_jobs.append(asyncio.ensure_future(convert_json_file_to_jsonl(task)))
-        await asyncio.gather(*conversion_jobs)
+        await asyncio.gather(*conversion_jobs, return_exceptions=True)
     logging.info({"message": "converted JSON to JSONL", "duration": duration()})
 
 
@@ -43,11 +43,17 @@ async def extract_data_from_apis_to_disk(tasks: List[Task]):
         for task in tasks:
             jobs.append(asyncio.ensure_future(send_request_and_stream_response_to_disk(http_client, task)))
         with catchtime() as duration:
-            results = await asyncio.gather(*jobs)
+            results = await asyncio.gather(*jobs, return_exceptions=True)
     logging.info({"message": f"Successfully streamed input file(s)", "duration": duration(), "results": results})
 
 
-@tenacity.retry(wait=tenacity.wait_exponential(multiplier=0.02, min=0.01, max=0.5))
+@tenacity.retry(
+    retry=tenacity.retry_if_exception_type(HTTPStatusError),
+    wait=tenacity.wait_exponential(
+        multiplier=0.01,
+        min=0.01,
+        max=0.5),
+)
 async def send_request_and_stream_response_to_disk(client: AsyncClient, task: Task) -> (str, str):
     """
     Sends a GET request to the specified URL and processes the response stream asynchronously.

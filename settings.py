@@ -3,6 +3,7 @@ import logging
 import os
 import tempfile
 import uuid
+import logging.config
 
 OUTPUT_DIR = "output"
 LOGS_DIR = "logs"

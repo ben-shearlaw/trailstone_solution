@@ -97,5 +97,5 @@ async def cleanup_temp_files(tasks: List[Task]):
     for task in tasks:
         jobs.append(asyncio.ensure_future(remove_temp_file(task.temp_file)))
     with catchtime() as duration:
-        await asyncio.gather(*jobs)
+        await asyncio.gather(*jobs, return_exceptions=True)
     logging.info({"message": f"Removed temp file(s)", "duration": duration()})
