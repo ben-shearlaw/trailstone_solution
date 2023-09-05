@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 import logging
@@ -85,3 +86,16 @@ def assemble_list_of_tasks() -> List[Task]:
     tasks_raw = construct_raw_tasks_list(dates)
     tasks = validate_tasks(tasks_raw)
     return tasks
+
+
+async def remove_temp_file(filepath):
+    await aiofiles.os.remove(filepath)
+
+
+async def cleanup_temp_files(tasks: List[Task]):
+    jobs = []
+    for task in tasks:
+        jobs.append(asyncio.ensure_future(remove_temp_file(task.temp_file)))
+    with catchtime() as duration:
+        await asyncio.gather(*jobs)
+    logging.info({"message": f"Removed temp file(s)", "duration": duration()})
