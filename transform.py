@@ -29,7 +29,7 @@ def transform(task):
         for index, chunk in enumerate(get_chunked_df(task)):
             strip_leading_and_trailing_whitespace_from_column_names(chunk)
             rename_cols(chunk)
-            cast_numeric_types(chunk)
+            cast_to_numeric_types(chunk)
             normalise_timestamps(chunk, task)
             write_header = True if index == 0 else False
             append_chunk_to_csv(chunk, write_header, task.output_filepath)
@@ -53,7 +53,7 @@ def get_chunked_df(task: Task) -> pd.DataFrame:
         return pd.read_csv(task.temp_file, chunksize=DF_CHUNK_SIZE)
 
 
-def cast_numeric_types(chunk: pd.DataFrame):
+def cast_to_numeric_types(chunk: pd.DataFrame):
     chunk['variable'] = chunk['variable'].astype(int)
     chunk['value'] = chunk['value'].astype(float)
 

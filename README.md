@@ -46,3 +46,4 @@ Possible improvements
 - Process CSV straight to output file without need for tempfile. Note: this is not possible with the data from the JSON
   endpoint
 - Address the issue that the filesystem logging may be blocking the main thread (not fully async)
+- Test coverage could be increased
