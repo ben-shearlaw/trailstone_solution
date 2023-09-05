@@ -14,12 +14,11 @@ Before you can run the app, make sure you have the following dependencies instal
 
 - Python 3.8 (for venv)
 
-OR 
+OR
 
 - Docker
 
 ## Running the App Using Virtual Environment (venv)
-
 
 1. Clone this repository
 2. Create & Activate venv
@@ -29,12 +28,14 @@ OR
 
 ## Running the App Using Docker
 
-
-1) In the .env file, ensure `API_HOST` is specified correctly to ensure communication between the API data source and the container. If the API source is being run on the host on port 8000, it can be accessed by the container by setting the value to `http://host.docker.internal:8000`
+1) In the .env file, ensure `API_HOST` is specified correctly to ensure communication between the API data source and
+   the container. If the API source is being run on the host on port 8000, it can be accessed by the container by
+   setting the value to `http://host.docker.internal:8000`
 2) `docker build -t etl_client .`
 2) `docker run etl_client`
 
-
 Possible improvements
 
-- Process CSV straight to output file without need for tempfile. Note: this is not possible with the data from the JSON endpoint
+- Process CSV straight to output file without need for tempfile. Note: this is not possible with the data from the JSON
+  endpoint
+- Address the issue that the filesystem logging may be blocking the main thread (not fully async)
