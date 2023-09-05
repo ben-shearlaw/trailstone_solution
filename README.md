@@ -41,7 +41,8 @@ OR
 3) `docker build -t etl_client .`
 4) `docker run etl_client`
 
-   Optionally, the image can be pulled from: `public.ecr.aws/q4c0v8k6/etl_client:latest`
+   
+Optionally, the image can be pulled from: `public.ecr.aws/q4c0v8k6/etl_client:latest` This image has the API_HOST value set to `http://host.docker.internal:8000`
 
 Possible improvements
 
