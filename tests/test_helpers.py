@@ -18,4 +18,4 @@ def test_construct_raw_tasks_list(mock_datetime):
     mock_datetime.now.return_value = datetime(2023, 8, 5)
     dates = helpers.get_latest_dates()[:1]
     actual = helpers.construct_raw_tasks_list(dates)
-    assert actual[0]['input_data_url'] == '/2023-07-28/renewables/solargen.json'
+    assert actual[0]['input_data_url'] == '/2023-07-29/renewables/solargen.json'
