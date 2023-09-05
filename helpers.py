@@ -13,6 +13,13 @@ from pydantic import BaseModel, HttpUrl, NewPath
 from settings import LOGS_DIR, OUTPUT_DIR, RUN_ID, TEMP_DIR
 
 
+class Task(BaseModel):
+    input_data_url: HttpUrl
+    input_data_format: Literal['json', 'csv']
+    output_filepath: NewPath
+    temp_file: NewPath
+
+
 def get_latest_dates() -> List[str]:
     dates = []
     current_date = datetime.now()
@@ -27,13 +34,6 @@ async def create_necessary_dirs_if_needed():
     for dir in (LOGS_DIR, OUTPUT_DIR):
         if not await aiofiles.os.path.exists(dir):
             await aiofiles.os.makedirs(dir)
-
-
-class Task(BaseModel):
-    input_data_url: HttpUrl
-    input_data_format: Literal['json', 'csv']
-    output_filepath: NewPath
-    temp_file: NewPath
 
 
 def validate_tasks(tasks_raw: List[dict]) -> List[Task]:
@@ -54,7 +54,7 @@ def catchtime() -> str:
     yield lambda: f"{(perf_counter() - start) * 1000:.0f}ms"
 
 
-def construct_tasks_list(dates):
+def construct_raw_tasks_list(dates: List[str]) -> List[dict]:
     tasks_raw = []
     for date in dates:
         wind_url_path = f"/{date}/renewables/windgen.csv"
@@ -76,12 +76,12 @@ def construct_tasks_list(dates):
     return tasks_raw
 
 
-def append_chunk_to_csv(chunk, write_header, output_filepath):
+def append_chunk_to_csv(chunk: pd.DataFrame, write_header: bool, output_filepath: str):
     pd.DataFrame.to_csv(chunk, output_filepath, index=False, mode='a', header=write_header)
 
 
-def assemble_list_of_tasks():
+def assemble_list_of_tasks() -> List[Task]:
     dates = get_latest_dates()
-    tasks_raw = construct_tasks_list(dates)
+    tasks_raw = construct_raw_tasks_list(dates)
     tasks = validate_tasks(tasks_raw)
     return tasks

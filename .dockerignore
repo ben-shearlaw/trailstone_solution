@@ -1,5 +1,9 @@
-output
 logs
+output
 .idea
+venv
 .gitignore
 .git
+Dockerfile
+.dockerignore
+README.md

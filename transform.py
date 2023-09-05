@@ -36,29 +36,29 @@ def transform(task: Task) -> (str, str):
     return task.output_filepath, duration()
 
 
-def get_chunked_df(task):
+def get_chunked_df(task: Task) -> pd.DataFrame:
     if task.input_data_format == "json":
         return pd.read_json(task.temp_file, chunksize=DF_CHUNK_SIZE, lines=True)
     else:
         return pd.read_csv(task.temp_file, chunksize=DF_CHUNK_SIZE)
 
 
-def cast_numeric_types(chunk):
+def cast_numeric_types(chunk: pd.DataFrame):
     chunk['variable'] = chunk['variable'].astype(int)
     chunk['value'] = chunk['value'].astype(float)
 
 
-def normalise_timestamps(chunk, task):
+def normalise_timestamps(chunk: pd.DataFrame, task: Task):
     unit = 'ms' if task.input_data_format == 'json' else None
     chunk['time_stamp'] = pd.to_datetime(chunk['time_stamp'], utc=True, unit=unit)
     chunk['last_modified'] = pd.to_datetime(chunk['last_modified'], utc=True, unit=unit)
 
 
-def strip_leading_and_trailing_whitespace_from_column_names(chunk):
+def strip_leading_and_trailing_whitespace_from_column_names(chunk: pd.DataFrame):
     chunk.columns = chunk.columns.str.strip()
 
 
-def rename_cols(chunk):
+def rename_cols(chunk: pd.DataFrame):
     column_rename_mapping = {
         "Last Modified utc": "last_modified",
         "Variable": "variable",

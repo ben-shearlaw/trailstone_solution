@@ -13,7 +13,7 @@ from helpers import catchtime, Task
 from settings import STREAM_CHUNK_SIZE
 
 
-async def convert_json_file_to_jsonl(task):
+async def convert_json_file_to_jsonl(task: Task):
     async with aiofiles.open(task.temp_file, 'r') as json_file:
         async with aiofiles.open(f"{task.temp_file}_reformatted", mode='w') as jsonl_file:
             async for record in ijson.items_async(json_file, "item"):
@@ -38,12 +38,12 @@ async def extract_data_from_apis_to_disk(tasks: List[Task]):
 
     :param tasks: A list of `Task` objects representing the API endpoints to retrieve data from.
     """
+    jobs = []
     async with AsyncClient(params={"api_key": os.getenv("API_KEY")}) as http_client:
-        requests = []
         for task in tasks:
-            requests.append(asyncio.ensure_future(send_request_and_stream_response_to_disk(http_client, task)))
+            jobs.append(asyncio.ensure_future(send_request_and_stream_response_to_disk(http_client, task)))
         with catchtime() as duration:
-            results = await asyncio.gather(*requests)
+            results = await asyncio.gather(*jobs)
     logging.info({"message": f"Successfully streamed input file(s)", "duration": duration(), "results": results})
 
 
