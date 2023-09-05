@@ -10,4 +10,4 @@ aiofiles>=23.2
 dask>=2023.5
 simplejson>=3.19
 pytest>=7.4
-pandera>=0.16.1
+pandera>=0.15.1
