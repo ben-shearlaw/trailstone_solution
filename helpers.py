@@ -21,7 +21,7 @@ class Task(BaseModel):
     input_data_format: Literal['json', 'csv']
     output_filepath: NewPath
     temp_file: NewPath
-    schema: object
+    data_schema: object
 
 
 def get_latest_dates() -> List[str]:
@@ -91,14 +91,14 @@ def construct_raw_tasks_list(dates: List[str]) -> List[dict]:
                 "input_data_format": "json",
                 "output_filepath": os.path.join(OUTPUT_DIR, f"{RUN_ID}_{date}_solar.csv"),
                 "temp_file": os.path.join(TEMP_DIR, f"{RUN_ID}_{date}_solar.jsonl"),
-                "schema": json_schema,
+                "data_schema": json_schema,
             },
             {
                 "input_data_url": urljoin(os.getenv("API_HOST"), wind_url_path),
                 "input_data_format": "csv",
                 "output_filepath": os.path.join(OUTPUT_DIR, f"{RUN_ID}_{date}_wind.csv"),
                 "temp_file": os.path.join(TEMP_DIR, f"{RUN_ID}_{date}_wind.csv"),
-                "schema": csv_schema,
+                "data_schema": csv_schema,
             },
         ])
     return tasks_raw

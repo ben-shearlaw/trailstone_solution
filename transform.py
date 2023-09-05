@@ -30,7 +30,7 @@ def transform(task):
     with catchtime() as duration:
         for index, chunk in enumerate(get_chunked_df(task)):
             try:
-                task.schema.validate(chunk)
+                task.data_schema.validate(chunk)
                 strip_leading_and_trailing_whitespace_from_column_names(chunk)
                 rename_cols(chunk)
                 normalise_timestamps(chunk, unit=get_unit(task))
