@@ -41,6 +41,8 @@ OR
 3) `docker build -t etl_client .`
 4) `docker run etl_client`
 
+   Optionally, the image can be pulled from: `public.ecr.aws/q4c0v8k6/etl_client:latest`
+
 Possible improvements
 
 - Process CSV straight to output file without need for tempfile. Note: this is not possible with the data from the JSON
