@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import List
+from typing import List, Union
 
 import dask
 import pandas as pd
@@ -25,7 +25,7 @@ def transform_input_files(tasks: List[Task]) -> None:
     })
 
 
-def transform(task):
+def transform(task: Task):
     success = False
     with catchtime() as duration:
         for index, chunk in enumerate(get_chunked_df(task)):
@@ -46,7 +46,7 @@ def transform(task):
     return task.output_filepath, duration(), success
 
 
-def get_unit(task):
+def get_unit(task: Task) -> Union['ms', None]:
     """'ms' for epoch (found in json) otherwise None for csv timestamps."""
     return 'ms' if task.input_data_format == 'json' else None
 

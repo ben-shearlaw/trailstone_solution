@@ -115,7 +115,7 @@ def assemble_list_of_tasks() -> List[Task]:
     return tasks
 
 
-async def remove_temp_file(filepath):
+async def remove_temp_file(filepath: str):
     await aiofiles.os.remove(filepath)
 
 
