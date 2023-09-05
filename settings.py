@@ -5,7 +5,7 @@ import tempfile
 import uuid
 import logging.config
 
-OUTPUT_DIR = "output"
+OUTPUT_DIR = "/output"
 LOGS_DIR = "logs"
 HEALTHCHECK_PATH = "/status"
 TEMP_DIR = tempfile.gettempdir()
