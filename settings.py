@@ -6,7 +6,7 @@ import uuid
 import logging.config
 
 OUTPUT_DIR = "/output"
-LOGS_DIR = "logs"
+LOGS_DIR = "/logs"
 HEALTHCHECK_PATH = "/status"
 TEMP_DIR = tempfile.gettempdir()
 RUN_ID = contextvars.ContextVar("run_id", default=str(uuid.uuid4())[:8]).get()
