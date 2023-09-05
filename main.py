@@ -4,7 +4,8 @@ import logging
 from dotenv import load_dotenv
 
 from extract import convert_json_files_to_jsonl, extract_data_from_apis_to_disk
-from helpers import create_necessary_dirs_if_needed, catchtime, assemble_list_of_tasks, cleanup_temp_files
+from helpers import create_necessary_dirs_if_needed, catchtime, assemble_list_of_tasks, cleanup_temp_files, \
+    halt_program_if_api_unavailable
 from settings import configure_logging
 from transform import transform_input_files
 
@@ -17,6 +18,7 @@ async def run_etl_client() -> None:
         try:
             await create_necessary_dirs_if_needed()
             configure_logging()
+            await halt_program_if_api_unavailable()
             logging.info("Client Start")
             tasks = assemble_list_of_tasks()
             await extract_data_from_apis_to_disk(tasks)

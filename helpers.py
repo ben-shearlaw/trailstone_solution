@@ -4,16 +4,19 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 import logging
 import os
+import sys
 from time import perf_counter
 from typing import List, Literal
 from urllib.parse import urljoin
 
+from httpx import AsyncClient
 import aiofiles.os
 import pandas as pd
 from pydantic import BaseModel, HttpUrl, NewPath
 import pandera as pa
+import tenacity
 
-from settings import LOGS_DIR, OUTPUT_DIR, RUN_ID, TEMP_DIR
+from settings import LOGS_DIR, OUTPUT_DIR, RUN_ID, TEMP_DIR, HEALTHCHECK_PATH
 
 
 class Task(BaseModel):
@@ -126,3 +129,19 @@ async def cleanup_temp_files(tasks: List[Task]):
     with catchtime() as duration:
         await asyncio.gather(*jobs, return_exceptions=True)
     logging.info({"message": f"Removed temp file(s)", "duration": duration()})
+
+
+@tenacity.retry(stop=tenacity.stop_after_attempt(3))
+async def test_api_is_running():
+    async with AsyncClient() as client:
+        url = urljoin(os.getenv("API_HOST"), HEALTHCHECK_PATH)
+        response = await client.get(url)
+        response.raise_for_status()
+
+
+async def halt_program_if_api_unavailable():
+    try:
+        await test_api_is_running()
+    except tenacity.RetryError:
+        logging.warning("Data API Unavailable after 3 attempts. Shutting down client early.")
+        sys.exit()
