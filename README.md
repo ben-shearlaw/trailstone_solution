@@ -1,9 +1,9 @@
 # ETL Client
 
-> **Please Note:** If you wish to run the solution, please ensure the host name for the api data source is correctly
+> **Please Note:** If you wish to run the solution, please ensure the host name for the api data source is correct
 > specified in the '.env' file. Examples are listed below.
 
-This solution can either be run using venv or Docker. See instructions below for both scenarios.
+This solution can either be run using venv or Docker. See the instructions below for both scenarios. I recommend using Docker.
 
 ## Table of Contents
 
