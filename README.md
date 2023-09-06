@@ -23,6 +23,8 @@ OR
 
 ## Running the App Using Virtual Environment (venv)
 
+Note: if running using venv, there could be issues regarding perms for writing files to the output dir and/or logs dir. These dirs can be changed in settings.py
+
 1. Clone this repository
 2. Create & Activate venv
 3. Install requirements
